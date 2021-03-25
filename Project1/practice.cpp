@@ -59,6 +59,7 @@ public:
 	}
 	void push_back(bool element) {
 		if (data_loc_int >= assigned_int) {
+			cout << "New memory allocated current size: " << assigned_int << ", Now allocating : " << 2 * assigned_int << endl;
 			unsigned int* tmp = new unsigned int[assigned_int * 2];
 			for (int i = 0; i < assigned_int; i++)tmp[i] = data[i];
 			for (int i = assigned_int; i < 2 * assigned_int; i++)tmp[i] = 0;
@@ -67,17 +68,25 @@ public:
 			assigned_int *= 2;
 		}
 		if (element) {
-			data[data_loc_int] |= (1 >> (length % 32));
+			data[data_loc_int] |= (1 << (length % 32));
 		}
 		length++;
 		if (!(length % 32))data_loc_int++;
 	}
-	bool& operator[](const int& index) {
-		int tmp = data[index / 32] & (1 >> (index % 32));
+	bool operator[](const int& index) {
+		return (data[index / 32] & (1 << (index % 32)))!=0;
 	}
 };
 
 
 int main() {
-	
+	Vector<bool> arr;
+	for (int i = 0; i < 68; i++) {
+		if (!(i % 32))cout << "new" << endl;
+		if (i % 3)arr.push_back(true);
+		else arr.push_back(false);
+	}
+	for (int i = 0; i < 68; i++) {
+		cout << arr[i];
+	}
 }
