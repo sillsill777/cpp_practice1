@@ -76,6 +76,9 @@ public:
 	bool operator[](const int& index) {
 		return (data[index / 32] & (1 << (index % 32)))!=0;
 	}
+	~Vector() {
+		delete[] data;
+	}
 };
 
 
@@ -83,8 +86,8 @@ int main() {
 	Vector<bool> arr;
 	for (int i = 0; i < 68; i++) {
 		if (!(i % 32))cout << "new" << endl;
-		if (i % 3)arr.push_back(true);
-		else arr.push_back(false);
+		if (i % 3)arr.push_back(1);
+		else arr.push_back(0);
 	}
 	for (int i = 0; i < 68; i++) {
 		cout << arr[i];
