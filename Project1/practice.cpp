@@ -35,6 +35,21 @@ public:
 		}
 		return ret;
 	}
+	void resize(const int& size) {
+		T* tmp = new T[size];
+		if (capacity <= size) {
+			for (int i = 0; i < capacity; i++)tmp[i] = data[i];
+			for (int i = capacity; i < size; i++)tmp[i] = T{};
+		}
+		else {
+			for (int i = 0; i < size; i++)tmp[i] = data[i];
+			length = length < (size - 1) ? length : (size - 1);
+		}
+		capacity = size;
+		delete[] data;
+		data = tmp;
+
+	}
 	int size() {
 		return length;
 	}
@@ -77,6 +92,30 @@ public:
 		length++;
 		if (!(length % 32))data_loc_int++;
 	}
+	void resize(const int& size) {
+		int size_int = size / 32 + 1;
+		unsigned int* tmp = new unsigned int[size_int];
+		for (int i = 0; i < size_int; i++)tmp[i] = data[i];
+
+		if (assigned_int < size_int) {
+			for (int i = 0; i < assigned_int; i++)tmp[i] = data[i];
+			for (int i = assigned_int; i < size_int; i++)tmp[i] = 0;
+		}
+		else {
+			for (int i = 0; i < size_int-1; i++)tmp[i] = data[i];
+			tmp[size_int - 1] = data[size_int - 1] & (0xFFFFFFFF >> (32-size % 32));
+			if (length > size) {
+				data_loc_int = size_int - 1;
+				length = size;
+			}
+		}
+		assigned_int = size_int;
+		delete[] data;
+		data = tmp;
+	}
+	int size() {
+		return length;
+	}
 	Bool operator[](const int&);
 	~Vector() {
 		delete[] data;
@@ -89,13 +128,14 @@ class Bool {
 public:
 	Bool() :index(0),ptr(nullptr) {}
 	Bool(int _index, Vector<bool>* _ptr) :index(_index), ptr(_ptr) {}
-	void operator=(const bool& in) {
+	bool operator=(const bool& in) {
 		if (in) {
 			*((ptr->data) + index/32) |= (1 << (index % 32));
 		}
 		else {
 			*((ptr->data) + index/32) &= (~(1 << (index % 32)));
 		}
+		return in;
 	}
 	operator bool() {
 		return (*((ptr->data) + index / 32) & (1 << (index % 32))) != 0;
@@ -105,22 +145,19 @@ public:
 Bool Vector<bool>::operator[](const int& index) {
 	return Bool(index, this);
 }
+
 int main() {
 	Vector<bool> arr;
-	for (int i = 0; i < 68; i++) {
-		if (!(i % 32))cout << "new" << endl;
-		if (i % 3)arr.push_back(1);
-		else arr.push_back(0);
-	}
-	for (int i = 0; i < 68; i++) {
-		cout << arr[i];
-	}
-	cout << endl;
-	for (int i = 0; i < 68; i++) {
-		if (i % 5)arr[i] = 1;
+	arr.resize(20);
+	for (int i = 0; i < 20; i++) {
+		if (i % 3)arr[i] = 1;
 		else arr[i] = 0;
 	}
-	for (int i = 0; i < 68; i++) {
-		cout << arr[i];
-	}
+	for (int i = 0; i < 20; i++)cout << arr[i];
+	arr.resize(10);
+	cout << endl;
+	for (int i = 0; i < 10; i++)cout << arr[i];
+	arr.resize(30);
+	cout << endl;
+	for (int i = 0; i < 30; i++)cout << arr[i];
 }
