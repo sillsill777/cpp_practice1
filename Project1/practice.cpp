@@ -1,93 +1,33 @@
 #include <iostream>
-#include <initializer_list>
 using namespace std;
-template<typename T>
-class vector {
-	T* data;
-	int size;
-	int res;
-public:
-	vector(int n):res(n),size(0),data(new T[n]){
-		for (int i = 0; i < res; i++)data[i] = T{};
-	}
-	vector(const initializer_list<T>& li) {
-		res = li.size();
-		size = res;
-		data = new T[res];
-		int i = 0;
-		for (auto itr = li.begin(); itr != li.end(); i++, itr++) {
-			data[i] = *itr;
-		}
-	}
-	T& operator[](const int& idx) const{
-		return data[idx];
-	}
-	void push_back(T element){
-		if (size >= res) {
-			T* tmp = new T[res * 2];
-			for (int i = 0; i < size; i++) {
-				tmp[i] = data[i];
-			}
-			res *= 2;
-			delete[] data;
-			data = tmp;
-		}
-		data[size] = element;
-		size++;
-	}
-	void swap(int i, int j) {
-		T tmp = data[i];
-		data[i] = data[j];
-		data[j] = tmp;
-	}
-	int len() const{
-		return size;
-	}
-	~vector() {
-		delete[] data;
-	}
+
+template<int N, int M>
+struct GCD {
+	static const int res = GCD<M, N% M>::res;
 };
-template<typename T>
-ostream& operator<<(ostream& os, const vector<T>& list) {
-	for (int i = 0; i < list.len(); i++) {
-		os << list[i] << " ";
-	}
-	os << endl;
-	return os;
-}
+template<int N>
+struct GCD<N, 0> {
+	static const int res = N;
+};
 
-template<typename T>
-void sort(T& list) {
-	for (int i = 0; i < list.len() - 1; i++) {
-		for (int j = i + 1; j < list.len(); j++) {
-			if (list[i]>list[j]) {
-				list.swap(i, j);
-			}
-		}
-	}
-}
+template<int N, int D=1>
+struct Ratio {
+private:
+	static const int gcd = GCD<N, D>::res;
+public:
+	static const int num = N / gcd;
+	static const int den = D / gcd;
+};
 
-template<typename T, typename Comp>
-void sort(T& list, const Comp& comp) {
-	for (int i = 0; i < list.len()-1; i++) {
-		for (int j = i+1; j < list.len(); j++) {
-			if (!comp(list[i], list[j])) {
-				list.swap(i, j);
-			}
-		}
-	}
-}
-template<typename T>
-struct Des {
-	bool operator()(const T& t1, const T& t2) const{
-		return t1 > t2;
-	}
+
+
+template<typename op1, typename op2>
+struct _ratio_add {
+	using res = Ratio<op1::num* op2::den + op1::den * op2::num, op1::den* op2::den>;
 };
 int main() {
-	vector<int> list = { 3,1,4,2,5,10,11,0,1 };
-	cout << list << endl;
-	sort(list);
-	cout << list << endl;
-	sort(list, Des<int>());
-	cout << list << endl;
+	using a = Ratio<3, 2>;
+	using b = Ratio<3, 3>;
+	using c = _ratio_add<a, b>::res;
+	cout << c::num << "/" << c::den << endl;
 }
